@@ -4,28 +4,22 @@ const Process = @import("process.zig").Process;
 const Engine = @import("engine.zig").Engine;
 const Allocator = std.mem.Allocator;
 
-const Config = struct {
-    field_size: type,
-    allocator: Allocator,
-};
-
-pub fn VM(comptime config: Config) type {
+pub fn VM(comptime T: type) type {
     return struct {
-        const T = config.field_size;
         const Self = @This();
-        const allocator = config.allocator;
 
         ready: ArrayList(Process(T)),
         engine: Engine(T),
-        proc_count: usize = 0,
+        count: usize = 0,
+        allocator: Allocator = undefined,
 
-        pub fn init() Self {
-            return Self{ .ready = ArrayList(Process(config.field_size)).init(allocator), .engine = Engine(T){} };
+        pub fn init(allocator: Allocator) Self {
+            return Self{ .ready = ArrayList(Process(T)).init(allocator), .engine = Engine(T){}, .allocator = allocator };
         }
 
         pub fn spawn(self: *Self, data: []const T) !void {
-            try self.ready.append(try Process(T).init(allocator, data, self.proc_count));
-            self.proc_count += 1;
+            try self.ready.append(try Process(T).init(self.allocator, data, self.count));
+            self.count += 1;
         }
 
         pub fn deinit(self: *Self) void {
@@ -48,18 +42,18 @@ pub fn VM(comptime config: Config) type {
 }
 
 test "new vm" {
-    var vm = VM(Config{ .field_size = u8, .allocator = std.testing.allocator }).init();
+    var vm = VM(u8).init(std.testing.allocator);
     defer vm.deinit();
 }
 
 test "add process" {
-    var vm = VM(Config{ .field_size = u8, .allocator = std.testing.allocator }).init();
+    var vm = VM(u8).init(std.testing.allocator);
     defer vm.deinit();
     try vm.spawn(&[_]u8{ 0x11, 0x00 });
 }
 
 test "step" {
-    var vm = VM(Config{ .field_size = u8, .allocator = std.testing.allocator }).init();
+    var vm = VM(u8).init(std.testing.allocator);
     defer vm.deinit();
     try vm.spawn(&[_]u8{ 0x0F, 0x00, 0xAF, 0xFF });
     try vm.step();
@@ -70,7 +64,7 @@ test "step" {
 }
 
 test "multi step" {
-    var vm = VM(Config{ .field_size = u8, .allocator = std.testing.allocator }).init();
+    var vm = VM(u8).init(std.testing.allocator);
     defer vm.deinit();
     try vm.spawn(&[_]u8{ 0xBF, 0x00, 0xAF, 0xFF });
     try vm.spawn(&[_]u8{ 0xAA, 0xCA, 0xFF });
