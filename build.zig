@@ -74,6 +74,30 @@ pub fn build(b: *std.Build) void {
 
     const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
 
+    const vm_unit_tests = b.addTest(.{
+        .root_source_file = b.path("src/vm.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const run_vm_unit_tests = b.addRunArtifact(vm_unit_tests);
+
+    const process_unit_tests = b.addTest(.{
+        .root_source_file = b.path("src/process.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const run_process_unit_tests = b.addRunArtifact(process_unit_tests);
+
+    const engine_unit_tests = b.addTest(.{
+        .root_source_file = b.path("src/engine.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const run_engine_unit_tests = b.addRunArtifact(engine_unit_tests);
+
     const exe_unit_tests = b.addTest(.{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
@@ -87,5 +111,9 @@ pub fn build(b: *std.Build) void {
     // running the unit tests.
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_lib_unit_tests.step);
+    test_step.dependOn(&run_vm_unit_tests.step);
+    test_step.dependOn(&run_process_unit_tests.step);
+    test_step.dependOn(&run_engine_unit_tests.step);
+
     test_step.dependOn(&run_exe_unit_tests.step);
 }

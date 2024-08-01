@@ -68,7 +68,6 @@ test "multi step" {
     defer vm.deinit();
     try vm.spawn(&[_]u8{ 0xBF, 0x00, 0xAF, 0xFF });
     try vm.spawn(&[_]u8{ 0xAA, 0xCA, 0xFF });
-    std.debug.print("start\n", .{});
     try vm.step();
     try vm.step();
     try vm.step();
@@ -77,5 +76,4 @@ test "multi step" {
     try vm.step();
     try vm.step();
     try vm.step();
-    std.debug.print("end\n", .{});
 }

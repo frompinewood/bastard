@@ -10,7 +10,6 @@ pub fn Engine(comptime T: type) type {
 
         pub fn step(_: Self, process: *Process(T)) status {
             const inst = process.next();
-            std.debug.print("PID: {d} 0x{X}\n", .{ process.id, inst });
             return switch (inst) {
                 0xFF => .dead,
                 else => .ok,
