@@ -7,8 +7,8 @@ A toy VM for learning Zig. Compiler target for future endeavors.
 * concurrency
 
 ## design
-(/src/vm.zig)[VM]) - task scheduler
+[VM](src/vm.zig) - task scheduler
 
-(/src/process.zig)[Process] - actually VMs, each process contains a stack and heap
+[Process](src/process.zig) - actually VMs, each process contains a stack and heap
 
-(/src/engine.zig)[Engine] - interprets instructions and signals when a process should die
+[Engine](src/engine.zig) - interprets instructions and signals when a process should die
