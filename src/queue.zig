@@ -46,7 +46,7 @@ pub fn Queue(comptime T: type) type {
             }
         }
 
-        pub fn pop(self: *Self) !T {
+        pub fn pop(self: *Self) ?T {
             if (self.head != null) {
                 const node = self.head;
                 const value = node.?.value;
@@ -55,7 +55,7 @@ pub fn Queue(comptime T: type) type {
                 if (self.head == null) self.tail = null;
                 return value;
             } else {
-                return error.EmptyQueue;
+                return null;
             }
         }
     };
@@ -86,6 +86,6 @@ test "pop" {
     // not using deinit because we're manually popping each item off the list
     try queue.push(1);
     try queue.push(2);
-    try expect(1 == try queue.pop());
-    try expect(2 == try queue.pop());
+    try expect(1 == queue.pop().?);
+    try expect(2 == queue.pop().?);
 }
