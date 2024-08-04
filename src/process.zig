@@ -1,6 +1,4 @@
 const std = @import("std");
-const status = @import("engine.zig").status;
-const Engine = @import("engine.zig").Engine;
 const Allocator = std.mem.Allocator;
 const ArrayList = std.ArrayList;
 const expect = std.testing.expect;
@@ -42,10 +40,6 @@ pub fn Process(comptime T: type) type {
         pub fn pop(self: *Self) T {
             return self.stack.pop();
         }
-
-        pub fn cycle(self: *Self, engine: anytype) status {
-            return engine.step(self);
-        }
     };
 }
 
@@ -66,11 +60,4 @@ test "process heap" {
     try expect(proc.heap[1] == 0xFA);
     try expect(proc.heap[2] == 0xAA);
     try expect(proc.heap.len == 3);
-}
-
-test "cycle test" {
-    const Type = Process(u8);
-    var proc = try Type.init(std.testing.allocator, &[_]u8{ 0x00, 0x00, 0x00 }, 0);
-    defer proc.deinit();
-    _ = proc.cycle(Engine(u8){});
 }
