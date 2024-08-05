@@ -24,21 +24,21 @@ pub fn Process(comptime T: type) type {
             self.allocator.free(self.heap);
         }
 
-        pub fn next(self: *Self) T {
-            if (self.pc >= self.heap.len) {
-                self.pc = 0;
-            }
-            const inst = self.heap[self.pc];
-            self.pc += 1;
-            return inst;
-        }
-
         pub fn push(self: *Self, val: T) !void {
             try self.stack.append(val);
         }
 
         pub fn pop(self: *Self) T {
             return self.stack.pop();
+        }
+
+        // increments the program counter and returns the next instruction
+        // loops on heap overflow
+        pub fn step(self: *Self) T {
+            const inst = self.heap[self.pc];
+            self.pc += 1;
+            if (self.pc == self.heap.len) self.pc = 0;
+            return inst;
         }
     };
 }
@@ -60,4 +60,22 @@ test "process heap" {
     try expect(proc.heap[1] == 0xFA);
     try expect(proc.heap[2] == 0xAA);
     try expect(proc.heap.len == 3);
+}
+
+test "step" {
+    var proc = try Process(u8).init(std.testing.allocator, &[_]u8{ 0x10, 0x11, 0x12, 0x13 }, 0);
+    defer proc.deinit();
+    try expect(proc.step() == 0x10);
+    try expect(proc.step() == 0x11);
+    try expect(proc.step() == 0x12);
+    try expect(proc.step() == 0x13);
+}
+test "step overflow" {
+    var proc = try Process(u8).init(std.testing.allocator, &[_]u8{ 0x10, 0x11, 0x12, 0x13 }, 0);
+    defer proc.deinit();
+    try expect(proc.step() == 0x10);
+    try expect(proc.step() == 0x11);
+    try expect(proc.step() == 0x12);
+    try expect(proc.step() == 0x13);
+    try expect(proc.step() == 0x10);
 }
