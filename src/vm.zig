@@ -10,7 +10,7 @@ pub fn VM(comptime T: type) type {
 
         ready: Queue(Process(T)),
         count: usize = 0,
-        allocator: Allocator = undefined,
+        allocator: Allocator,
 
         pub fn init(allocator: Allocator) Self {
             return Self{ .ready = Queue(Process(T)).init(allocator), .allocator = allocator };
