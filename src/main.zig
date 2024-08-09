@@ -20,8 +20,13 @@ pub fn main() !void {
         var vm = VM(u16).init(allocator);
         defer vm.deinit();
         const new_bytes = try util.repack(allocator, u16, u8, bytes);
-        defer allocator.free(new_bytes);
-        try vm.spawn(new_bytes);
+        if (new_bytes) |b| {
+            defer allocator.free(b);
+            try vm.spawn(b);
+        } else {
+            std.debug.print("Failed to repackage bytes\n", .{});
+            std.process.exit(1);
+        }
     } else {
         std.debug.print("usage: {s} <filename>\n", .{bin_name.?});
     }
